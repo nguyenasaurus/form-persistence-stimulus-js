@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://unpkg.com/stimulus/dist/stimulus.umd.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+  <script>
+    (() => {
+      const application = Stimulus.Application.start()
+
+      application.register("form-persistence", class extends Stimulus.Controller {
+        static get targets() {
+          return [ "input" ]
+        }
+
+        connect() {
+        //   on('change', `form[data-controller='form-persistence'] ${this.TARGET_FIELD_SELECTORS}`, this._onFieldChanged);
+          // this.element.addEventListener('submit', this._onFormSubmitted);
+          // this.element.addEventListener('ajax:beforeSend', this._onFormSubmitted);
+        }
+
+        disconnect() {
+          // off('change', `form[data-controller='form-persistence'] ${this.TARGET_FIELD_SELECTORS}`, this._onFieldChanged);
+          // this.element.removeEventListener('submit', this._onFormSubmitted);
+          // this.element.removeEventListener('ajax:beforeSend', this._onFormSubmitted);
+        }
+
+        onFieldChanged() {
+          console.log(this);
+          this._save(this._key, this._formDataAsJson);
+          console.log(localStorage);
+        }
+
+        get _key() {
+          return this.currentUrl;
+        }
+
+        get currentUrl() {
+          return window.location.href;
+        }
+
+        _save(key, value) {
+          localStorage.setItem(key, value);
+        }
+
+        _delete(key) {
+          localStorage.removeItem(key);
+        }
+
+
+        get _formDataAsJson() {
+          const jsonObject = {};
+          this.element.querySelectorAll(this.TARGET_FIELD_SELECTORS).forEach((field) => {
+            jsonObject[this._fieldKeyFor(field)] = field.value;
+          });
+          return JSON.stringify(jsonObject);
+        }
+
+        _fieldKeyFor(field) {
+          const id = field.getAttribute('id');
+          if (!id) {
+            throw new Error(`Field with no id can't be persisted ${field}`);
+          }
+          return id;
+        }
+
+        _onFormSubmitted = () => {
+          this._delete(this._key);
+        }
+      })
+    })()
+  </script>
+</head>
+<body>
+  <form class="container" data-controller="form-persistence" data-action="change->form-persistence#onFieldChanged">
+    <div class="field">
+      <label class="label">Name</label>
+      <div class="control">
+        <input class="input" type="text" placeholder="Text input">
+      </div>
+    </div>
+    
+    <div class="field">
+      <label class="label">Username</label>
+      <div class="control has-icons-left has-icons-right">
+        <input class="input is-success" type="text" placeholder="Text input" value="bulma">
+        <span class="icon is-small is-left">
+          <i class="fas fa-user"></i>
+        </span>
+        <span class="icon is-small is-right">
+          <i class="fas fa-check"></i>
+        </span>
+      </div>
+      <p class="help is-success">This username is available</p>
+    </div>
+    
+    <div class="field">
+      <label class="label">Email</label>
+      <div class="control has-icons-left has-icons-right">
+        <input class="input is-danger" type="email" placeholder="Email input" value="hello@">
+        <span class="icon is-small is-left">
+          <i class="fas fa-envelope"></i>
+        </span>
+        <span class="icon is-small is-right">
+          <i class="fas fa-exclamation-triangle"></i>
+        </span>
+      </div>
+      <p class="help is-danger">This email is invalid</p>
+    </div>
+    
+    <div class="field">
+      <label class="label">Subject</label>
+      <div class="control">
+        <div class="select">
+          <select>
+            <option>Select dropdown</option>
+            <option>With options</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <div class="field">
+      <label class="label">Message</label>
+      <div class="control">
+        <textarea class="textarea" placeholder="Textarea"></textarea>
+      </div>
+    </div>
+    
+    <div class="field">
+      <div class="control">
+        <label class="checkbox">
+          <input type="checkbox">
+          I agree to the <a href="#">terms and conditions</a>
+        </label>
+      </div>
+    </div>
+    
+    <div class="field">
+      <div class="control">
+        <label class="radio">
+          <input type="radio" name="question">
+          Yes
+        </label>
+        <label class="radio">
+          <input type="radio" name="question">
+          No
+        </label>
+      </div>
+    </div>
+    
+    <div class="field is-grouped">
+      <div class="control">
+        <button class="button is-link">Submit</button>
+      </div>
+      <div class="control">
+        <button class="button is-link is-light">Cancel</button>
+      </div>
+    </div>
+  </form>
+</body>
+</html>
